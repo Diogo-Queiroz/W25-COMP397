@@ -10,8 +10,10 @@ namespace Platformer397
 
         private void Awake()
         {
+            #if !UNITY_ANDROID
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            #endif
             if (player != null) { return; }
             player = GameObject.FindGameObjectWithTag("Player").transform;
         }
