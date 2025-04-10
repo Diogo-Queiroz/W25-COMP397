@@ -10,10 +10,15 @@ namespace Platformer397
 
         private void Awake()
         {
+
+            #if UNITY_EDITOR && !UNITY_ANDROID //If you have IOS build, you can also add the pre-processor here
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            #endif
+
             if (player != null) { return; }
             player = GameObject.FindGameObjectWithTag("Player").transform;
+
         }
 
         private void OnEnable()
