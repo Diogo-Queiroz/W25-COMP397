@@ -13,12 +13,14 @@ namespace Platformer397
         [SerializeField] private float rotationSpeed = 200f;
 
         [SerializeField] private Transform mainCam;
+        private Inventory inventory;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
             rb.freezeRotation = true;
             mainCam = Camera.main.transform;
+            inventory = new Inventory();
         }
         private void Start()
         {
@@ -28,14 +30,41 @@ namespace Platformer397
         private void OnEnable()
         {
             input.Move += GetMovement;
+            input.Interact += UseKey;
         }
         private void OnDisable()
         {
             input.Move -= GetMovement;
+            input.Interact -= UseKey;
         }
         private void FixedUpdate()
         {
             UpdateMovement();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            ItemCollectible collectible = other.GetComponent<ItemCollectible>();
+            if (collectible == null) { return; }
+            switch (collectible.item.itemType)
+            {
+                case ItemBase.ItemType.Sword:
+                    inventory.Add(collectible.item);
+                    Debug.Log("Adding sword into inventory");
+                    break;
+                case ItemBase.ItemType.Coin:
+                    inventory.Add(collectible.item);
+                    Coin coin = collectible.item as Coin;
+                    Debug.Log("Adding coin into inventory of value: " + coin.value);
+                    break;
+                case ItemBase.ItemType.Key:
+                    inventory.Add(collectible.item);
+                    Debug.Log("Adding key into inventory");
+                    break;
+                default:
+                    break;
+            }
+            Destroy(collectible.gameObject);
         }
 
         private void UpdateMovement()
@@ -67,6 +96,17 @@ namespace Platformer397
         {
             movement.x = move.x;
             movement.z = move.y;
+        }
+
+        private void UseKey(bool status)
+        {
+           if (!status) { return; }
+            Key keyItem = inventory.GetKey(out bool hasKey) as Key;
+            if (hasKey)
+            {
+                inventory.Remove(keyItem);
+                Debug.Log("Used Key");
+            }
         }
     }
 }
